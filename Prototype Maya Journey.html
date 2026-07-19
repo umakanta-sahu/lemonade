@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maya's Year — Clickable Prototype · Renters → Car</title>
+<style>
+:root{--pink:#FF0083;--pink-tint:#FDE9F3;--ink:#2B2B2B;--sub:#77777C;--bubble:#F1F1F2;--user:#3D3D3F;
+--teal:#17BFAE;--tealbg:#E7F8F6;--amber:#E8A13D;--amberbg:#FBF1E2;--hair:#E9E9EA;--card:#F7F7F8;--page:#FCFBF9}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--page);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.top{padding:26px 18px 12px;max-width:1180px;margin:0 auto}
+.eyebrow{font-size:11px;letter-spacing:2.2px;text-transform:uppercase;color:var(--pink);font-weight:800}
+h1{font-family:Georgia,serif;font-weight:500;font-size:clamp(24px,3.4vw,36px);line-height:1.15;margin-top:6px}
+.sub{font-size:13.5px;color:var(--sub);margin-top:8px;max-width:720px;line-height:1.5}
+.chapters{display:flex;gap:7px;flex-wrap:wrap;margin:16px auto 0;max-width:1180px;padding:0 18px}
+.chp{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;font-weight:800;border:1.2px solid #D8D8DA;color:var(--sub);background:#fff;border-radius:100px;padding:6px 12px;cursor:pointer;user-select:none}
+.chp.on{border-color:var(--pink);color:var(--pink);background:var(--pink-tint)}
+.stage{display:grid;grid-template-columns:minmax(300px,372px) minmax(280px,1fr);gap:26px;max-width:1180px;margin:20px auto 0;padding:0 18px 40px;align-items:start}
+@media(max-width:760px){.stage{grid-template-columns:1fr}}
+.phonewrap{position:relative;display:flex;flex-direction:column;align-items:center}
+.phone{width:100%;max-width:332px;background:#fff;border:1.5px solid #E3E3E4;border-radius:44px;box-shadow:0 14px 34px rgba(43,43,43,.08);overflow:hidden;display:flex;flex-direction:column;height:660px}
+.ctrls{display:flex;gap:10px;margin-top:14px;align-items:center}
+.nav{width:44px;height:44px;border-radius:50%;border:1.4px solid #D8D8DA;background:#fff;font-size:18px;cursor:pointer;color:var(--ink)}
+.nav:disabled{opacity:.3;cursor:default}
+.stepct{font-size:11px;letter-spacing:1.4px;font-weight:800;color:var(--sub)}
+.bar{height:4px;background:#ECECEE;border-radius:100px;width:100%;max-width:332px;margin-top:10px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--pink);border-radius:100px;transition:width .25s}
+.panel{background:#fff;border:1px solid var(--hair);border-radius:18px;padding:20px 20px 18px;position:sticky;top:16px}
+.pchap{font-size:10px;letter-spacing:1.8px;text-transform:uppercase;font-weight:800;color:var(--pink)}
+.ptitle{font-family:Georgia,serif;font-size:22px;margin-top:5px;line-height:1.2}
+.plab{font-size:9.6px;letter-spacing:1.8px;font-weight:800;color:var(--sub);margin-top:15px}
+.ptext{font-size:13.2px;line-height:1.55;margin-top:5px}
+.ptext b{font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.emo{background:var(--pink-tint);color:#B0005B;font-size:11px;font-weight:700;border-radius:100px;padding:5px 10px}
+.trc{font-size:9.4px;letter-spacing:1.2px;text-transform:uppercase;font-weight:800;color:var(--sub);border:1px solid #D8D8DA;border-radius:100px;padding:4px 9px;background:#fff}
+.taphint{display:flex;align-items:center;gap:8px;margin-top:16px;background:var(--card);border-radius:12px;padding:10px 12px;font-size:12px}
+.taphint .dot{width:9px;height:9px;border-radius:50%;background:var(--pink);flex-shrink:0;animation:pl 1.4s infinite}
+@keyframes pl{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.55);opacity:.55}}
+@media(prefers-reduced-motion:reduce){.taphint .dot,.go::after{animation:none!important}}
+/* ---------- phone components ---------- */
+.status{display:flex;justify-content:space-between;align-items:center;padding:14px 26px 6px;font-size:13px;font-weight:600}
+.sic{display:flex;align-items:center;gap:5px}.bars{display:flex;align-items:flex-end;gap:1.6px}
+.bars i{display:block;width:3px;background:var(--ink);border-radius:1px}
+.bars i:nth-child(1){height:4px}.bars i:nth-child(2){height:6px}.bars i:nth-child(3){height:8px}.bars i:nth-child(4){height:10px}
+.batt{width:21px;height:10.5px;border:1.2px solid var(--ink);border-radius:3px;position:relative}
+.batt::after{content:"";position:absolute;inset:1.5px;right:4px;background:var(--ink);border-radius:1px}
+.chathead{display:grid;grid-template-columns:34px 1fr 34px;align-items:center;padding:6px 14px 10px;border-bottom:1px solid var(--hair)}
+.chev{font-size:22px;font-weight:300}.headc{text-align:center}
+.mayaname{font-size:15.5px;font-weight:700}
+.mayaname::before{content:"";display:inline-block;width:7px;height:7px;background:#37C978;border-radius:50%;margin-right:6px;vertical-align:2px}
+.role{font-size:11.5px;color:var(--sub);margin-top:1px}.reset{font-size:17px;color:var(--sub);text-align:right}
+.chat{flex:1;overflow:hidden;padding:13px 12px 8px;display:flex;flex-direction:column;gap:9px}
+.row{display:flex;align-items:flex-end;gap:7px}.row.user{justify-content:flex-end}
+.avatar{width:32px;height:32px;border-radius:50%;background:#EBD9CB;position:relative;flex-shrink:0;overflow:hidden}
+.avatar::before{content:"";position:absolute;top:6px;left:50%;transform:translateX(-50%);width:12px;height:12px;border-radius:50%;background:#9A8172}
+.avatar::after{content:"";position:absolute;top:19px;left:50%;transform:translateX(-50%);width:20px;height:14px;border-radius:10px 10px 0 0;background:#9A8172}
+.sp{width:32px}
+.b{max-width:80%;padding:10px 13px;font-size:13.4px;line-height:1.42;border-radius:19px}
+.b.maya{background:var(--bubble);border-bottom-left-radius:6px}
+.b.userb{background:var(--user);color:#fff;border-bottom-right-radius:6px}
+.pencil{width:22px;height:22px;border-radius:50%;background:var(--bubble);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--sub)}
+.sheet{border-top:1px solid var(--hair);background:#FBFBFB}
+.opt{display:flex;align-items:center;gap:9px;padding:13px 18px;border-bottom:1px solid var(--hair);font-size:12.6px;letter-spacing:1.3px;font-weight:600;text-transform:uppercase;color:#4A4A4E}
+.opt:last-child{border-bottom:none}.star{color:var(--pink);font-size:15px}
+.opt .hint{margin-left:auto;font-size:10.5px;color:var(--teal);letter-spacing:1px;font-weight:700}
+.homebar{width:120px;height:4.5px;background:var(--ink);border-radius:3px;margin:7px auto 9px;opacity:.85}
+.ccard,.pcard{background:#fff;border:1px solid var(--hair);border-radius:16px;margin-left:39px;max-width:86%;padding:12px 14px}
+.ccard{background:var(--card);border:none}
+.pcard.full{margin-left:0;max-width:100%}
+.ctitle{font-size:10px;letter-spacing:1.8px;font-weight:800;color:var(--pink);margin-bottom:8px}
+.ktitle{font-size:10px;letter-spacing:1.8px;font-weight:800;color:var(--sub);margin-bottom:8px}
+.cline{display:flex;gap:9px;font-size:12.6px;line-height:1.4;margin-top:7px}
+.cline span:first-child{flex-shrink:0}
+.kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--hair);font-size:12.6px}
+.kv:last-child{border-bottom:none}.kv .k{color:var(--sub);font-size:10.5px;letter-spacing:1.1px;font-weight:700;text-transform:uppercase;padding-top:2px}
+.kv .v{font-weight:600}
+.okline{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.okdot{width:20px;height:20px;border-radius:50%;background:var(--teal);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:800}
+.oktitle{font-size:12.5px;letter-spacing:1.6px;font-weight:800}
+.fine{font-size:10.8px;line-height:1.45;color:var(--sub);margin-left:39px;max-width:84%;padding:0 4px}
+.fine.c{margin:0;max-width:100%;text-align:center}
+.prov{display:inline-block;font-size:9.4px;font-weight:800;letter-spacing:.8px;color:#8A4A69;background:var(--pink-tint);border-radius:100px;padding:3px 8px;margin-top:8px}
+.pmain{font-size:15px;font-weight:700}.pmeta{font-size:11.5px;color:var(--sub);margin-top:3px}
+.pen2{float:right;width:22px;height:22px;border-radius:50%;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--sub)}
+/* home */
+.apphead{display:grid;grid-template-columns:34px 1fr 34px;align-items:center;padding:6px 16px 12px;border-bottom:1px solid var(--hair)}
+.apptitle{text-align:center;font-size:15.5px;font-weight:700}
+.logo{font-family:Georgia,serif;font-style:italic}
+.dots{text-align:right;color:var(--sub);letter-spacing:2px;font-weight:700}
+.hbody{flex:1;overflow:hidden;padding:14px;display:flex;flex-direction:column;gap:11px}
+.hello{font-family:Georgia,serif;font-size:24px;margin:2px 2px 4px}
+.seclab{font-size:10.5px;letter-spacing:1.8px;font-weight:800;color:var(--sub);margin:4px 2px 0}
+.pol{background:#fff;border:1px solid var(--hair);border-radius:16px;padding:14px 15px;display:flex;align-items:center;gap:12px}
+.pic{width:38px;height:38px;border-radius:12px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:18px}
+.pname{font-size:14px;font-weight:700}.pmet{font-size:11.5px;color:var(--sub);margin-top:2px}
+.pchev{margin-left:auto;color:#C9C9CC;font-size:18px}
+.rw{background:var(--pink-tint);border:1px solid #F7C2DD;border-radius:16px;padding:14px 15px;display:flex;align-items:center;gap:12px}
+.rwq{background:#fff;border:1.4px solid #F2C6DE;border-radius:16px;padding:14px 15px}
+.rwn{font-size:12.5px;font-weight:800;letter-spacing:1.2px;color:#B0005B}
+.rwm{font-size:11.5px;color:#8A4A69;margin-top:2px}
+.rwopen{margin-left:auto;font-size:9.4px;font-weight:800;letter-spacing:1px;color:#0E8C80;background:var(--tealbg);border-radius:100px;padding:3px 8px}
+/* watch */
+.wc{background:#fff;border:1px solid var(--hair);border-radius:16px;padding:13px 15px}
+.bignum{font-size:24px;font-weight:800;letter-spacing:-.5px}
+.bignum small{font-size:11px;font-weight:600;color:var(--sub);margin-left:3px}
+.statrow{display:flex;justify-content:space-between;align-items:baseline}
+.mchip{font-size:10px;font-weight:700;color:#0E8C80;background:var(--tealbg);border-radius:100px;padding:4px 9px}
+.chiprow{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.meter{height:7px;background:var(--card);border-radius:100px;margin-top:10px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--pink)}
+.mlab{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);margin-top:6px}
+.insight{background:var(--card);border-radius:12px;padding:10px 12px;font-size:12.2px;line-height:1.45;margin-top:9px}
+.pr{display:flex;align-items:baseline;gap:8px}
+.pr .p{font-size:28px;font-weight:800;color:var(--pink)}
+.pr .per{font-size:12px;color:var(--sub);font-weight:600}
+.strike{font-size:13px;color:var(--sub);text-decoration:line-through;font-weight:600}
+.save{font-size:10.6px;font-weight:800;color:#0E8C80;background:var(--tealbg);border-radius:100px;padding:4px 9px;margin-left:auto}
+.appt{font-size:12.2px;line-height:1.5;margin-top:9px}
+.quiet{font-size:11.5px;color:var(--sub);text-align:center;text-decoration:underline;margin-top:2px}
+/* lock */
+.lock{flex:1;background:linear-gradient(165deg,#FDF3F8,#F6F1FB 45%,#EEF4FA);display:flex;flex-direction:column;padding:8px 16px 14px}
+.lt{text-align:center;margin-top:30px}
+.ld{font-size:15px;font-weight:600;color:#55555A}
+.lc{font-size:62px;font-weight:700;letter-spacing:-1px;color:#2E2E33;line-height:1.05}
+.notif{background:rgba(255,255,255,.9);border-radius:20px;padding:12px 13px;margin-top:34px;box-shadow:0 8px 22px rgba(43,43,43,.1)}
+.nh{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.ai{width:22px;height:22px;border-radius:6px;background:var(--pink);color:#fff;font-family:Georgia,serif;font-style:italic;font-size:14px;display:flex;align-items:center;justify-content:center}
+.na{font-size:11px;color:#77777C;font-weight:600}.nt{margin-left:auto;font-size:11px;color:#9A9A9F}
+.ntt{font-size:13.6px;font-weight:700;margin-bottom:3px}
+.nb{font-size:13px;line-height:1.42;color:#3A3A3E}
+.lf{margin-top:auto;display:flex;justify-content:space-between;padding:0 14px}
+.lb{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.75);display:flex;align-items:center;justify-content:center;font-size:17px}
+/* compare / mail */
+.compare{background:#fff;border:1px solid var(--hair);border-radius:16px;margin-left:39px;max-width:86%;overflow:hidden}
+.c2{display:grid;grid-template-columns:1fr 1fr}
+.cc{padding:12px}
+.cc+.cc{border-left:1px solid var(--hair)}
+.cl{font-size:9.4px;letter-spacing:1.4px;font-weight:800;color:var(--sub);margin-bottom:6px}
+.cn{font-size:21px;font-weight:800}.cn.pk{color:var(--pink)}
+.cm{font-size:10.6px;color:var(--sub);margin-top:3px}
+.hike{display:inline-block;font-size:9.4px;font-weight:800;color:#B0005B;background:var(--pink-tint);border-radius:100px;padding:2.5px 7px;margin-top:5px}
+.sbar{background:var(--tealbg);color:#0E8C80;text-align:center;font-size:11px;font-weight:800;letter-spacing:1px;padding:8px}
+.mailhead{padding:10px 16px 8px;border-bottom:1px solid var(--hair)}
+.mf{display:flex;align-items:center;gap:9px}.ms{font-size:13.5px;font-weight:700}.mm{font-size:12px;color:var(--sub)}
+.msub{font-size:14px;font-weight:700;margin-top:7px;line-height:1.3}
+.mbody{flex:1;overflow:hidden;padding:16px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px}
+.mh{font-family:Georgia,serif;font-size:19px;line-height:1.25;max-width:250px}
+.mnums{width:100%;border:1px solid var(--hair);border-radius:14px;overflow:hidden}
+.mr{display:flex;justify-content:space-between;padding:9px 14px;font-size:12.4px;border-bottom:1px solid var(--hair)}
+.mr:last-child{border-bottom:none}.mr .k{color:var(--sub)}.mr .v{font-weight:700}
+.mbtn{background:var(--pink);color:#fff;font-size:11.6px;letter-spacing:1.6px;font-weight:800;border-radius:100px;padding:12px 24px}
+.mfine{font-size:10.4px;color:var(--sub);line-height:1.5;max-width:250px}
+/* overlay & coverage */
+.ovh{display:grid;grid-template-columns:60px 1fr 60px;align-items:center;padding:10px 16px}
+.ovt{display:flex;justify-content:center;gap:26px;border-bottom:1px solid var(--hair)}
+.ot{font-size:12px;letter-spacing:1.4px;font-weight:700;color:var(--sub);padding:8px 2px}
+.ot.on{color:var(--pink);border-bottom:2.5px solid var(--pink)}
+.ovb{flex:1;overflow:hidden;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.cr{background:#fff;border:1px solid var(--hair);border-radius:14px;padding:11px 13px}
+.crn{font-size:12.8px;font-weight:700}
+.crv{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:11.4px;color:var(--sub)}
+.arr{color:#C9C9CC}.lv{color:var(--ink);font-weight:700}
+.chp2{margin-left:auto;font-size:9.2px;font-weight:800;border-radius:100px;padding:3px 8px}
+.m1{color:#0E8C80;background:var(--tealbg)}.m2{color:var(--pink);background:var(--pink-tint)}.m3{color:#fff;background:var(--pink)}
+.fix{display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px dashed var(--hair);font-size:11.2px}
+.tog{width:40px;height:24px;border-radius:100px;background:var(--pink);position:relative}
+.tog::after{content:"";position:absolute;top:2.5px;right:2.5px;width:19px;height:19px;border-radius:50%;background:#fff}
+.paybar{background:var(--pink);color:#fff;text-align:center;font-size:12.6px;letter-spacing:1.6px;font-weight:800;padding:14px}
+.aud{display:flex;justify-content:space-between;padding:5px 0;font-size:11.6px;color:var(--sub)}
+.aud .ok{color:var(--teal);font-weight:700}
+.net{background:var(--tealbg);color:#0E8C80;text-align:center;font-size:11.6px;font-weight:800;letter-spacing:1.2px;border-radius:10px;padding:9px;margin-top:9px}
+.stepl{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--hair);font-size:12.2px;line-height:1.4}
+.stepl:last-child{border-bottom:none}
+.sd{width:20px;height:20px;border-radius:50%;background:var(--pink-tint);color:#B0005B;font-size:10.5px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+/* sign & call kit */
+.scope span:first-child{color:var(--teal);font-weight:800}
+.not{display:flex;gap:9px;font-size:12px;line-height:1.45;margin-top:9px;padding-top:9px;border-top:1px dashed var(--hair);color:var(--sub)}
+.sigbox{border:1.6px dashed #D5D5D8;border-radius:14px;height:70px;margin-top:11px;display:flex;align-items:center;justify-content:center;position:relative;background:#FDFDFD}
+.sig{font-family:"Snell Roundhand","Brush Script MT",cursive;font-size:29px;transform:rotate(-3deg)}
+.sigx{position:absolute;left:12px;bottom:8px;font-size:11px;color:#C9C9CC}
+.besttime{display:flex;align-items:center;gap:7px;font-size:11.2px;color:var(--sub);background:var(--card);border-radius:100px;padding:6px 11px;margin-top:8px;width:fit-content}
+.script{background:var(--card);border-left:3px solid var(--pink);border-radius:12px;padding:12px 13px;margin-top:10px;font-size:12.4px;line-height:1.6}
+.needrow{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.need{font-size:9.6px;font-weight:700;color:var(--sub);border:1px solid #D8D8DA;border-radius:100px;padding:4px 9px;background:#fff}
+.warn{background:var(--pink-tint);border-radius:12px;padding:11px 13px;margin-top:10px;font-size:11.8px;line-height:1.5;color:#7A2B52}
+/* tracker */
+.ppill{display:flex;align-items:center;justify-content:space-between}
+.pt{font-size:10.5px;letter-spacing:1.8px;font-weight:800;color:var(--sub)}
+.pc{font-size:10.5px;font-weight:800;color:#0E8C80;background:var(--tealbg);border-radius:100px;padding:4px 10px}
+.pc.pk{color:#B0005B;background:var(--pink-tint)}
+.tstep{background:#fff;border:1px solid var(--hair);border-radius:15px;padding:12px 13px;display:flex;gap:11px}
+.td{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;margin-top:1px}
+.td.d{background:var(--teal);color:#fff}
+.td.w{background:var(--amberbg);color:var(--amber);border:1.6px solid var(--amber)}
+.td.i{background:var(--card);color:#B9B9BD;border:1.6px solid #E2E2E4}
+.td.f{background:var(--pink);color:#fff}
+.tn{font-size:13px;font-weight:700}.tm{font-size:11.2px;color:var(--sub);margin-top:3px;line-height:1.45}
+.tm b{color:var(--ink)}
+.doc{display:inline-flex;align-items:center;gap:5px;font-size:9.6px;font-weight:800;color:#0E8C80;background:var(--tealbg);border-radius:100px;padding:3px 9px;margin-top:6px}
+.flagbox{background:var(--pink-tint);border-radius:11px;padding:9px 11px;font-size:11.4px;line-height:1.45;color:#7A2B52;margin-top:7px}
+.yj{text-align:center;font-size:11.2px;color:var(--sub);padding:2px 8px}
+.yj b{color:var(--ink)}
+.toast{background:var(--ink);color:#fff;border-radius:100px;padding:8px 14px;font-size:11.4px;font-weight:600;display:flex;align-items:center;gap:8px;width:fit-content;margin:0 auto}
+.seam{border:1px solid var(--hair);border-radius:15px;overflow:hidden}
+.sr{display:grid;grid-template-columns:1fr 1fr;position:relative}
+.sb{padding:12px 11px;text-align:center}.sb.o{background:var(--card)}.sb.n{background:var(--pink-tint)}
+.sn{font-size:10px;letter-spacing:1.4px;font-weight:800;color:var(--sub)}
+.sb.n .sn{color:#B0005B}
+.st{font-size:12px;font-weight:700;margin-top:4px}
+.stag{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--ink);color:#fff;font-size:9px;font-weight:800;letter-spacing:1px;border-radius:100px;padding:5px 9px;white-space:nowrap}
+.sf{background:var(--tealbg);color:#0E8C80;text-align:center;font-size:10.6px;font-weight:800;letter-spacing:1.1px;padding:8px}
+/* receipt & share */
+.receipt{background:linear-gradient(170deg,#FF0083,#E4006F);border-radius:20px;margin-left:39px;max-width:88%;padding:15px 16px 12px;color:#fff;box-shadow:0 10px 26px rgba(255,0,131,.25)}
+.rt{font-size:9.4px;letter-spacing:2.2px;font-weight:800;opacity:.85;margin-top:2px}
+.rb{font-size:36px;font-weight:800;letter-spacing:-1px;margin-top:9px;line-height:1}
+.rb small{font-size:13px;font-weight:700;opacity:.9}
+.rr{margin-top:11px;border-top:1px dashed rgba(255,255,255,.4);padding-top:8px}
+.r1{display:flex;justify-content:space-between;font-size:12px;padding:4px 0}
+.r1 .k{opacity:.85}.r1 .v{font-weight:800}
+.rf{font-size:10.4px;opacity:.85;margin-top:8px;text-align:center}
+.dim{flex:1;background:rgba(43,43,43,.35);display:flex;flex-direction:column;justify-content:flex-end}
+.ss{background:#F4F4F5;border-radius:22px 22px 0 0;padding:14px 14px 10px}
+.grab{width:38px;height:4.5px;background:#C9C9CC;border-radius:3px;margin:0 auto 12px}
+.msg{background:#fff;border-radius:14px;padding:12px 13px;font-size:12.4px;line-height:1.5}
+.link{color:var(--pink);font-weight:700;text-decoration:underline}
+.apps{display:flex;gap:14px;margin-top:13px;justify-content:space-around}
+.ab{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:9.4px;color:var(--sub)}
+.ac{width:46px;height:46px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.sfine{font-size:10.2px;color:var(--sub);text-align:center;margin-top:11px;line-height:1.5}
+.fhero{text-align:center;padding:8px 8px 2px}
+.ffrom{display:inline-flex;align-items:center;gap:7px;background:var(--pink-tint);border-radius:100px;padding:6px 12px;font-size:11.4px;font-weight:700;color:#B0005B;margin-top:10px}
+.fav{width:20px;height:20px;border-radius:50%;background:#EBD9CB}
+.fh{font-family:Georgia,serif;font-size:20px;line-height:1.25;margin-top:12px}
+.fsub{font-size:12.2px;color:var(--sub);margin-top:7px;line-height:1.5}
+/* teach & nugget */
+.nug{background:var(--card);border-radius:12px;padding:10px 12px;font-size:12px;line-height:1.45}
+.nlab{font-size:9px;letter-spacing:1.6px;font-weight:800;color:var(--pink);display:block;margin-bottom:5px}
+/* intro/outro */
+.cover{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px;background:linear-gradient(170deg,#FFF6FB,#FCFBF9)}
+.cl1{font-family:Georgia,serif;font-style:italic;font-size:26px}
+.cl2{font-family:Georgia,serif;font-size:26px;line-height:1.2;margin-top:14px}
+.cl3{font-size:12.6px;color:var(--sub);margin-top:12px;line-height:1.6;max-width:230px}
+/* hotspot */
+.go{cursor:pointer;position:relative}
+.go::after{content:"";position:absolute;top:50%;right:12px;transform:translateY(-50%);width:9px;height:9px;border-radius:50%;background:var(--pink);animation:pl 1.4s infinite;box-shadow:0 0 0 4px rgba(255,0,131,.15)}
+.go.noDot::after{display:none}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="eyebrow">Clickable prototype · The golden path in 27 taps · + 5 detours</div>
+  <h1>Maya's Year: from one question to a Lemonade driver.</h1>
+  <p class="sub">Tap the <b style="color:var(--pink)">pulsing option</b> on the phone (or use ‹ › / arrow keys). The panel narrates every step: <b>why the screen exists</b> and <b>what it does for her</b> — the interviewer's script, built in.</p>
+</div>
+<div class="chapters" id="chps"></div>
+<div class="stage">
+  <div class="phonewrap">
+    <div class="phone" id="phone"></div>
+    <div class="ctrls">
+      <button class="nav" id="prev">‹</button>
+      <span class="stepct" id="ct"></span>
+      <button class="nav" id="next">›</button>
+    </div>
+    <div class="bar"><i id="fill"></i></div>
+  </div>
+  <aside class="panel">
+    <div class="pchap" id="pchap"></div>
+    <div class="ptitle" id="ptitle"></div>
+    <div class="plab">WHY THIS SCREEN EXISTS</div>
+    <div class="ptext" id="pwhy"></div>
+    <div class="plab">WHAT IT DOES FOR HER</div>
+    <div class="ptext" id="pux"></div>
+    <div class="chips" id="pchips"></div>
+    <div class="taphint"><span class="dot"></span><span id="ptap"></span></div>
+  </aside>
+</div>
+
+<script>
+const stat='<div class="status"><span>9:41</span><span class="sic"><span class="bars"><i></i><i></i><i></i><i></i></span><span>〰</span><span class="batt"></span></span></div>';
+const mhead='<div class="chathead"><span class="chev">‹</span><div class="headc"><div class="mayaname">Maya</div><div class="role">Personal Insurance Assistant</div></div><span class="reset">↺</span></div>';
+const hb='<div class="homebar"></div>';
+const CH=["Start","1 · Enrollment","2 · The Watch","3 · The Season & Push","4 · The Quote","5 · The Goodbye","6 · The Tracker","7 · The Receipt","Detours","Finale"];
+const S=[
+/* ---------- INTRO ---------- */
+{c:0,t:"How to drive this",why:"Interviewers experience the strategy as Maya does — one year, ~27 taps. Every screen ahead traces to a settled decision in the Master Strategy.",
+ux:"You are Maya: a 2-year Lemonade renters fan in Austin, paying Geico $1,847/yr for a car you barely drive.",
+emo:"🍋 ready",tags:["GOLDEN PATH","7 SCREENS"],tap:"Tap BEGIN on the phone",
+h:stat+'<div class="cover"><div class="cl1">Lemonade</div><div class="cl2">Maya\u2019s Year</div><div class="cl3">Renters → Car, end to end.<br>The two problems: Lemonade never speaks in the window she\u2019d switch (P2) — and leaves the switching to her (P4).<br><br>One product fixes both.</div></div><div class="sheet"><div class="opt go"><span class="star">★</span> Begin — her renters renewal day</div></div>'+hb},
+/* ---------- CH1 ENROLLMENT ---------- */
+{c:1,t:"The pivot",why:"The ask must never risk the sacred renters transaction — so it opens only after renewal is celebrated and closed.",
+ux:"She's in a post-renewal glow, already in the app. One friendly question, three taps, zero typing.",
+emo:"😌 receptive",tags:["T3 OWNED MOMENT","P2 SEED"],tap:"Tap YES, I DRIVE",
+h:stat+mhead+'<div class="chat"><div class="row"><div class="avatar"></div><div class="b maya">Done! Your renters policy is renewed for year 3 🎉</div></div><div class="row"><div class="sp"></div><div class="b maya">Still $14/mo. Still covering your stuff like a hawk.</div></div><div class="row"><div class="avatar"></div><div class="b maya">While I\u2019ve got you — one quick question. Do you drive?</div></div></div><div class="sheet"><div class="opt go">Yes, I drive</div><div class="opt">No car</div><div class="opt">Maybe later</div></div>'+hb},
+{c:1,t:"One tap: the carrier",why:"Even a bail-out here banks a rung-2 signal — carrier + state is enough for SERFF rate-filing waves to find her later.",
+ux:"Quick-picks, no free text. Answering costs her one tap and gives her assistant a name to watch.",
+emo:"🙂 zero effort",tags:["SIGNAL · LAYER 2","CENSUS"],tap:"Tap GEICO",
+h:stat+mhead+'<div class="chat"><div class="row user"><span class="pencil">✎</span><div class="b userb">Yes, I drive</div></div><div class="row"><div class="avatar"></div><div class="b maya">Who\u2019s your car insured with?</div></div></div><div class="sheet"><div class="opt go">Geico</div><div class="opt">Progressive</div><div class="opt">State Farm</div><div class="opt">Allstate</div><div class="opt">Someone else</div></div>'+hb},
+{c:1,t:"The mandate ask",why:"Capture a mandate, not a date: her permission to watch is what makes every later touch service, not surveillance.",
+ux:"A public fact (rates rose ~10%), her benefit, and a three-line promise: I watch · I ping only when it's worth it · say go and I do the paperwork.",
+emo:"🤔 \u201ccosts me nothing\u201d",tags:["TRACES S8","CREEPINESS-CLEAN"],tap:"Tap ★ LINK MY GEICO ACCOUNT",
+h:stat+mhead+'<div class="chat"><div class="row user"><span class="pencil">✎</span><div class="b userb">Geico</div></div><div class="row"><div class="avatar"></div><div class="b maya">Real talk: US car insurance rates rose ~10% this year. Most people quietly overpay.</div></div><div class="row"><div class="sp"></div><div class="b maya">Want me to keep an eye on yours?</div></div><div class="ccard"><div class="ctitle">RATE WATCH</div><div class="cline"><span>👀</span><span>I watch your rate. You do nothing.</span></div><div class="cline"><span>💸</span><span>I only ping you when switching saves real money.</span></div><div class="cline"><span>✍️</span><span>Say go, and I handle the paperwork — start to finish.</span></div></div></div><div class="sheet"><div class="opt go"><span class="star">★</span> Link my Geico account <span class="hint">10 SEC</span></div><div class="opt">Snap my policy page</div><div class="opt">Not now</div></div>'+hb},
+{c:1,t:"Ride along + the disclosure",why:"Always-on telematics is disclosed HERE — never sprung at bind. Privacy-sensitive users self-select out where it's cheap.",
+ux:"The linked policy appears instantly ($1,847, renews Mar 14). Telematics is framed as her upside: a Real Price, trees, control — with watch-only as a first-class choice.",
+emo:"🛡️ in control",tags:["TRACES S9","DISCLOSURE ≺ BIND"],tap:"Tap ★ RIDE ALONG + WATCH",
+h:stat+mhead+'<div class="chat"><div class="row"><div class="avatar"></div><div class="b maya">Linked! I can see your policy: <b>$1,847/yr</b>, renews <b>March 14</b>.</div></div><div class="row"><div class="sp"></div><div class="b maya">Want your <b>Real Price</b> when your moment comes — not an average driver\u2019s price?</div></div><div class="row"><div class="sp"></div><div class="b maya">Let me ride along (location on) and I\u2019ll learn how little you actually drive. You\u2019ll see miles, CO2 saved, trees earned 🌳</div></div><p class="fine">Heads up: if you ever switch to Lemonade Car, every driver keeps the app on with location — it\u2019s how we price fairly, pay claims fast, and plant trees for your miles.</p></div><div class="sheet"><div class="opt go"><span class="star">★</span> Ride along + watch my rate</div><div class="opt">Just watch my rate</div></div>'+hb},
+{c:1,t:"The contract, confirmed",why:"The interception contract is spoken out loud — so the future push arrives as a kept promise, not an ad.",
+ux:"One card: what's watched, when she'll hear from us, and the exit ('stop anytime'). Nothing left ambiguous.",
+emo:"🤝 trust sealed",tags:["P2 SEEDED","P4 PRE-LOADED"],tap:"Tap DONE — then months pass",
+h:stat+mhead+'<div class="chat"><div class="ccard" style="background:#fff;border:1px solid var(--hair)"><div class="okline"><span class="okdot">✓</span><span class="oktitle">RATE WATCH IS ON</span></div><div class="kv"><span class="k">Carrier</span><span class="v">Geico · Auto</span></div><div class="kv"><span class="k">Premium</span><span class="v">$1,847 / yr</span></div><div class="kv"><span class="k">Renews</span><span class="v">~March 14</span></div><div class="kv"><span class="k">Ride along</span><span class="v" style="color:var(--teal)">On 🌳</span></div></div><div class="row"><div class="avatar"></div><div class="b maya">That\u2019s it. I\u2019ll check in before your renewal — or sooner if Geico files a rate hike in Texas. Until then, enjoy your trees 🌳</div></div><p class="fine">Stop Rate Watch anytime in Settings.</p></div><div class="sheet"><div class="opt go" style="justify-content:center;font-weight:700">Done</div></div>'+hb},
+/* ---------- CH2 WATCH ---------- */
+{c:2,t:"The ambient card",why:"Rate Watch lives among her policies, not among ads — visible on every open, selling nothing.",
+ux:"A quiet status line under 'Watching for you'. Curiosity, when it strikes, has somewhere to land.",
+emo:"🙂 zero pressure",tags:["T5 SURFACE"],tap:"Tap the RATE WATCH card",
+h:stat+'<div class="apphead"><span class="chev">☰</span><div class="apptitle logo">Lemonade</div><span class="dots">•••</span></div><div class="hbody"><div class="hello">Hey, Maya 👋</div><div class="seclab">MY POLICIES</div><div class="pol"><div class="pic">🏠</div><div><div class="pname">Renters</div><div class="pmet">$14/mo · Austin, TX · Active</div></div><span class="pchev">›</span></div><div class="seclab">WATCHING FOR YOU</div><div class="rw go noDot"><div class="pic" style="background:#fff">👀</div><div><div class="rwn">RATE WATCH</div><div class="rwm">Watching Geico · Real Price forming · 2 trees 🌳</div></div><span class="pchev" style="color:#D98FB4">›</span></div><div class="seclab">GOOD TO KNOW</div><div class="pol"><div class="pic">🐶</div><div><div class="pname">Pet insurance</div><div class="pmet">From $10/mo — for Simba\u2019s dramatic era</div></div><span class="pchev">›</span></div></div>'+hb},
+{c:2,t:"Week 3 — forming",why:"'Forming' over faking: no invented price before confidence. Honesty about uncertainty is the trust deposit.",
+ux:"She's already receiving — miles, trips, trees, and a live 'no Geico filings' row proving the watch is real.",
+emo:"🌱 already receiving",tags:["C2 HANDLED","TRACES S9"],tap:"Tap the REAL PRICE card — 3 months pass",
+h:stat+'<div class="apphead"><span class="chev">‹</span><div class="apptitle">Rate Watch</div><span class="dots">•••</span></div><div class="hbody" style="gap:10px"><div class="wc"><div class="ktitle">YOUR DRIVING · FIRST 3 WEEKS</div><div class="statrow"><span class="bignum">289<small>miles</small></span><span class="bignum">21<small>trips</small></span></div><div class="chiprow"><span class="mchip">SMOOTH BRAKING 96%</span><span class="mchip">PHONE DOWN 98%</span></div></div><div class="wc go noDot"><div class="ktitle">YOUR REAL PRICE</div><div class="meter"><i style="width:62%"></i></div><div class="mlab"><span>Learning how you drive…</span><span><b>62%</b></span></div><div class="insight">No number yet — a real price needs real data. A few more weeks and I\u2019ll know you well enough to be sure.</div></div><div class="wc"><div class="ktitle">WATCHING GEICO</div><div class="kv"><span class="k">Renews</span><span class="v">Mar 14 · 174 days</span></div><div class="kv"><span class="k">TX filings</span><span class="v" style="color:var(--teal)">None this quarter ✓</span></div></div><p class="fine c">Ride along is on · Stop anytime</p></div>'+hb},
+{c:2,t:"Month 4 — revealed, not sold",why:"Transparency demands showing the number; strategy demands not pushing it. The only promise is an appointment — channeling her to the zero-paperwork renewal boundary.",
+ux:"Identity before price: 'you drive like a $1,390 driver.' Then the number, the appointment — and the SERFF row flips pink. Her carrier just filed a hike.",
+emo:"😏 validated",tags:["ENDOWMENT","LANE-3 CHANNEL"],tap:"Tap the pink FILINGS row — the season begins",
+h:stat+'<div class="apphead"><span class="chev">‹</span><div class="apptitle">Rate Watch</div><span class="dots">•••</span></div><div class="hbody" style="gap:10px"><div class="wc"><div class="ktitle">WHAT I LEARNED</div><div class="statrow"><span class="bignum">6,840<small>mi/yr pace</small></span><span style="font-size:11px;color:var(--sub)">US avg ≈ 13,000</span></div><div class="insight">You drive <b>about half</b> as much as the driver Geico prices you like. That\u2019s not a discount — that\u2019s your fair price.</div></div><div class="wc"><div class="ktitle">YOUR REAL PRICE</div><div class="pr"><span class="p">$1,390</span><span class="per">/yr</span><span class="strike">$1,847</span><span class="save">SAVES $457</span></div><div class="appt"><b>Your moment: ~Mar 1.</b> Right before your Geico renewal — zero paperwork. <b>I\u2019ll come to you.</b></div><div class="quiet">Can\u2019t wait? You can switch sooner</div></div><div class="wc go noDot"><div class="ktitle">WATCHING GEICO</div><div class="kv"><span class="k">Renews</span><span class="v">Mar 14 · 43 days</span></div><div class="kv"><span class="k">TX filings</span><span class="v" style="color:var(--pink)">+8.5% filed · eff. Mar 1 ⚠</span></div></div></div>'+hb},
+/* ---------- CH3 SEASON ---------- */
+{c:3,t:"The rhythm — a monthly gift",why:"The relationship compounds between windows: identity built one nugget at a time, so the eventual price feels like justice, not a deal.",
+ux:"A recap with NO call-to-action. She's told she's one of the good ones — and taught why that's worth money.",
+emo:"😊 seen",tags:["GIVES · NEVER ASKS","EDUCATION"],tap:"Tap SEE MY FULL RECAP",
+h:stat+mhead+'<div class="chat"><div class="row"><div class="avatar"></div><div class="b maya">Your January, driven 📊</div></div><div class="pcard"><div class="ktitle">JANUARY RECAP</div><div class="statrow"><span class="bignum">412<small>mi</small></span><span class="bignum">29<small>trips</small></span><span class="bignum">+2<small>🌳</small></span></div><div class="chiprow"><span class="mchip">SMOOTHER BRAKING THAN 90% OF AUSTIN</span></div></div><div class="pcard"><span class="nlab">THIS MONTH\u2019S NUGGET</span><div class="nug">Mileage is the #1 thing big insurers guess wrong. They price you like a <b>~13,000 mi/yr</b> driver. You\u2019re pacing <b>6,900</b>. That gap is money.</div></div><div class="row"><div class="avatar"></div><div class="b maya">Nothing to do — just thought you should know how good you are 🙂</div></div></div><div class="sheet"><div class="opt go">See my full recap</div></div>'+hb},
+{c:3,t:"The teaching — Feb 8",why:"Education as pre-suasion: the scary mechanic becomes 'my assistant reads these for me,' three weeks before the push cites it.",
+ux:"A 30-second lesson with HER date in it — and the promise restated: 'I'll bring your numbers before it touches you.'",
+emo:"🎓 informed",tags:["SERFF · PUBLIC","PROMISE RESTATED"],tap:"Tap GOT IT 👍 — 3 weeks pass",
+h:stat+mhead+'<div class="chat"><div class="row"><div class="avatar"></div><div class="b maya">Heads up — Geico just filed an <b>8.5% increase</b> in Texas. What that actually means (30 sec):</div></div><div class="pcard"><div class="ktitle">RATE FILINGS, EXPLAINED</div><div class="cline"><span>📄</span><span>Insurers file increases with the state — public record. <b>I read these so you don\u2019t have to.</b></span></div><div class="cline"><span>📅</span><span>It lands at renewal. Yours is <b>March 14</b> — about 5 weeks out.</span></div><div class="cline"><span>🔒</span><span>Your Real Price doesn\u2019t move. It\u2019s built on <b>your driving</b>, not their pool.</span></div></div><div class="row"><div class="avatar"></div><div class="b maya">Nothing to do right now. I\u2019ll bring your exact numbers before it touches you — promise.</div></div></div><div class="sheet"><div class="opt go">Got it 👍</div><div class="opt">How do filings work?</div></div>'+hb},
+{c:3,t:"The push — Mar 1, 9:41",why:"The most important 30 words in the product — containing zero new information, only new actionability. The fifth note, not the first.",
+ux:"'That Geico increase' is a callback she already understands. Recognition, not interruption.",
+emo:"👀 recognition",tags:["KEPT PROMISE","IV-1 PRIMARY"],tap:"Tap the notification",
+h:'<div class="lock"><div class="status" style="padding:6px 10px 0"><span></span><span class="sic"><span class="bars"><i></i><i></i><i></i><i></i></span><span>〰</span><span class="batt"></span></span></div><div class="lt"><div class="ld">Sunday, March 1</div><div class="lc">9:41</div></div><div class="notif go noDot"><div class="nh"><span class="ai">l</span><span class="na">LEMONADE</span><span class="nt">now</span></div><div class="ntt">Your moment\u2019s here, Maya 👀</div><div class="nb">That Geico increase landed on your renewal: $2,004 (+8.5%). Your Real Price: $1,390 — saves $614/yr. Say the word and I\u2019ll handle the whole switch.</div></div><div class="lf"><span class="lb">🔦</span><span class="lb">📷</span></div></div>'},
+{c:3,t:"The open — where she stands",why:"The corrected decision frame: she's choosing between $2,004 and $1,390 — the $1,847 Geico no longer exists. Every number names its source.",
+ux:"Vindicated, then calm. Three doors — one of them out, none of them guilt. Zero urgency theater; the date states itself.",
+emo:"😤→😌 vindicated",tags:["P2 CONVERTED","3 DOORS, 1 OUT"],tap:"Tap ★ SHOW ME THE SWITCH PLAN",
+h:stat+mhead+'<div class="chat"><div class="row"><div class="avatar"></div><div class="b maya">Told you I\u2019d come to you 🙂 You already know this story — the 8.5% landed on your renewal:</div></div><div class="compare"><div class="c2"><div class="cc"><div class="cl">GEICO · RENEWAL OFFER</div><div class="cn">$2,004</div><div class="cm">was $1,847 / yr</div><span class="hike">+8.5% FILED</span></div><div class="cc"><div class="cl">YOUR REAL PRICE</div><div class="cn pk">$1,390</div><div class="cm">built on your 6,840 mi/yr</div></div></div><div class="sbar">SAVES $614 / YR · SAME COVERAGE, MATCHED LINE FOR LINE</div></div><p class="fine">Switching on Mar 14 means zero paperwork — your Geico term just ends. You\u2019ll see everything before anything happens.</p></div><div class="sheet"><div class="opt go"><span class="star">★</span> Show me the switch plan</div><div class="opt">Remind me closer to Mar 14</div><div class="opt">Not this year</div></div>'+hb},
+/* ---------- CH4 QUOTE ---------- */
+{c:4,t:"Filled, not asked",why:"P3 dies here: every field arrives filled and labeled with its source — 'from your Geico policy,' 'from your renters account.' Knowing feels earned, not creepy.",
+ux:"Her role flips from data-entry clerk to editor-in-chief. A ✎ on every card keeps her in charge.",
+emo:"😮 \u201cit knows me\u201d",tags:["P3 DISSOLVED","THE HINGE"],tap:"Tap ★ LOOKS RIGHT",
+h:stat+mhead+'<div class="chat"><div class="row"><div class="avatar"></div><div class="b maya">Here\u2019s your switch plan. I filled in everything I know — your only job is to check me.</div></div><div class="pcard"><div class="ktitle">YOUR CAR<span class="pen2">✎</span></div><div class="pmain">2021 Honda Civic EX</div><div class="pmeta">VIN •••8241 · Garaged in Austin, TX</div><span class="prov">FROM YOUR GEICO POLICY</span></div><div class="pcard"><div class="ktitle">WHO DRIVES IT<span class="pen2">✎</span></div><div class="pmain">Just you, Maya</div><div class="pmeta">Licensed 11 yrs · Clean record</div><span class="prov">FROM GEICO + YOUR RENTERS ACCOUNT</span></div><div class="row"><div class="avatar"></div><div class="b maya">All correct?</div></div></div><div class="sheet"><div class="opt go"><span class="star">★</span> Looks right — keep going</div><div class="opt">Edit something</div></div>'+hb},
+{c:4,t:"Matched, line for line",why:"The flag where we're WORSE is the honesty centerpiece — anti-twisting compliance rendered as a trust feature, with a one-tap, transparently-priced fix.",
+ux:"Scrutiny turns to reassurance: every line matched, one upgrade ON US!, one pink LOWER impossible to miss.",
+emo:"🧐→😌 reassured",tags:["ANTI-TWISTING AS UI","TRACES S10"],tap:"Tap the MATCH toggle (+$18/yr)",
+h:stat+'<div class="ovh"><span style="font-size:14px">Close</span><span class="logo" style="text-align:center;font-size:19px">Lemonade</span><span></span></div><div class="ovt"><span class="ot on">COVERAGE MATCH</span><span class="ot">FAQ</span></div><div class="ovb"><div class="cr"><div class="crn">Bodily injury liability</div><div class="crv"><span>Geico 50/100</span><span class="arr">→</span><span class="lv">50/100</span><span class="chp2 m1">MATCHED ✓</span></div></div><div class="cr"><div class="crn">Collision · Comprehensive</div><div class="crv"><span>$500 ded.</span><span class="arr">→</span><span class="lv">$500 ded.</span><span class="chp2 m1">MATCHED ✓</span></div></div><div class="cr"><div class="crn">Roadside assistance</div><div class="crv"><span>Geico +$14/yr</span><span class="arr">→</span><span class="lv">Included</span><span class="chp2 m2">ON US!</span></div></div><div class="cr go noDot" style="border-color:#F2A9CE"><div class="crn">Rental car reimbursement</div><div class="crv"><span>Geico $40/day</span><span class="arr">→</span><span class="lv">$30/day</span><span class="chp2 m3">LOWER</span></div><div class="fix"><span style="font-weight:700">Match Geico\u2019s $40/day · +$18/yr</span><span class="tog"></span></div></div></div><div class="paybar">YOUR REAL PRICE · $1,408 / YR</div>'+hb},
+{c:4,t:"The math, nothing hidden",why:"The audit runs even when the answer is 'none' — lost-discount and exit-cost checks printed explicitly. The audit's existence is the trust.",
+ux:"Her chosen upgrade is priced into the number she sees. Every figure moved because of a choice she made on screen.",
+emo:"🤝 leveled with",tags:["NET-SAVINGS HONESTY"],tap:"Tap ★ LINE UP MY SWITCH",
+h:stat+mhead+'<div class="chat"><div class="row"><div class="avatar"></div><div class="b maya">You matched the rental coverage up — smart. The full math, nothing hidden:</div></div><div class="pcard"><div class="ktitle">THE MATH</div><div class="kv"><span class="k">Geico renewal</span><span class="v">$2,004 / yr</span></div><div class="kv"><span class="k">Real Price (matched)</span><span class="v" style="color:var(--pink)">$1,408 / yr</span></div><div class="kv"><span class="k">Car savings</span><span class="v" style="color:var(--teal)">$596 / yr</span></div><div style="margin-top:7px"><div class="aud"><span>Discounts lost elsewhere</span><span class="ok">None — renters is here ✓</span></div><div class="aud"><span>Geico exit cost</span><span class="ok">$0 — term just ends ✓</span></div><div class="aud"><span>Renters bundle drop</span><span class="ok">−$17 / yr ✓</span></div></div><div class="net">NET IN YOUR POCKET · $613 / YR</div></div><p class="fine">No teaser math. Your Real Price holds as long as you drive like you.</p></div><div class="sheet"><div class="opt go"><span class="star">★</span> Line up my switch</div><div class="opt">Save this for later</div></div>'+hb},
+{c:4,t:"Lined up — the plan",why:"The iron rule (bind-first, zero gap) stated as HER benefit: a lapse raises her rates everywhere for years. The calendar does the paperwork.",
+ux:"The relationship dividend cashed: card already on file. The whole switch needs less data entry than her original renters purchase.",
+emo:"🧘 in control",tags:["LANE 3","BIND-FIRST"],tap:"Tap ★ REVIEW & SIGN",
+h:stat+mhead+'<div class="chat"><div class="pcard" style="margin-top:2px"><div class="ktitle">YOUR SWITCH PLAN · MAR 14</div><div class="stepl"><span class="sd">1</span><span><b>Mar 14, 12:01am</b> — your Lemonade Car policy starts. Not a second of gap.</span></div><div class="stepl"><span class="sd">2</span><span><b>Mar 14</b> — your Geico term simply ends. <b>Nothing to cancel.</b></span></div><div class="stepl"><span class="sd">3</span><span><b>One signature</b> — next screen — and I handle every bit of paperwork.</span></div><div class="stepl"><span class="sd">4</span><span><b>Payment</b> — card on file •• 4242 · first charge Mar 14 · $117.33/mo.</span></div></div><div class="row"><div class="avatar"></div><div class="b maya">A gap in coverage raises your rates everywhere for years — so the calendar does the paperwork, and you stay covered every second.</div></div></div><div class="sheet"><div class="opt go"><span class="star">★</span> Review &amp; sign the goodbye</div><div class="opt">Save for later</div></div>'+hb},
+/* ---------- CH5 GOODBYE ---------- */
+{c:5,t:"The small signature",why:"A limited one-policy-one-date instrument — never a POA. What it DOESN'T do is printed as prominently as what it does; stated smallness makes signing easy.",
+ux:"Gravity, made light. One squiggle covers the start and the goodbye — and a copy lands in her email instantly.",
+emo:"✍️ light gravity",tags:["E-SIGN · NOT POA","TRACES S10"],tap:"Tap ★ SIGN & LINE IT UP",
+h:stat+mhead+'<div class="chat"><div class="row"><div class="avatar"></div><div class="b maya">One signature. Exactly what it does — and doesn\u2019t:</div></div><div class="pcard"><div class="ktitle">WHAT YOUR SIGNATURE DOES</div><div class="cline scope"><span>✓</span><span>Starts your Lemonade Car policy — <b>Mar 14, 12:01am</b>.</span></div><div class="cline scope"><span>✓</span><span>Lets me handle your Geico goodbye — <b>this policy, this date, nothing more</b>.</span></div><div class="not"><span>✕</span><span><b>Not</b> a power of attorney. <b>Not</b> open-ended. Exactly one thing: this switch.</span></div><div class="sigbox"><span class="sigx">✕</span><span class="sig">Maya Rodriguez</span></div></div><p class="fine">E-signature — legally binding (E-SIGN Act). A copy lands in your email the moment you sign.</p></div><div class="sheet"><div class="opt go"><span class="star">★</span> Sign &amp; line it up</div><div class="opt">Read the full authorization</div></div>'+hb},
+{c:5,t:"Covered first — the router",why:"The iron rule as sequence: her policy locks BEFORE any exit step exists. The lane router surfaces only because her carrier demands a voice.",
+ux:"'You're covered — no matter what happens next.' Then Geico's quirk, framed as theirs, not her burden.",
+emo:"🔒 covered",tags:["BIND-FIRST","LANE ROUTER"],tap:"Tap ★ SHOW ME THE CALL KIT",
+h:stat+mhead+'<div class="chat"><div class="pcard" style="margin-top:2px"><div class="okline"><span class="okdot">✓</span><span class="oktitle">YOUR CAR POLICY IS LOCKED IN</span></div><div class="kv"><span class="k">Starts</span><span class="v">Mar 14 · 12:01am</span></div><div class="kv"><span class="k">Real Price</span><span class="v">$1,408 / yr</span></div><div class="kv"><span class="k">Coverage gap</span><span class="v" style="color:var(--teal)">Zero seconds ✓</span></div></div><div class="row"><div class="avatar"></div><div class="b maya">You\u2019re covered — that part\u2019s done, no matter what happens next.</div></div><div class="row"><div class="sp"></div><div class="b maya">Now, the goodbye. Most carriers, I\u2019d just send the paperwork myself. <b>Geico insists on hearing it from you</b> — a 2-minute call. I\u2019ve made it painless:</div></div></div><div class="sheet"><div class="opt go"><span class="star">★</span> Show me the call kit</div><div class="opt">Do it later — remind me</div></div>'+hb},
+{c:5,t:"The 2-minute goodbye",why:"Lane 2, choreographed: script, numbers, best hour, and the counter-offer inoculation — the carrier playbook showing its homework.",
+ux:"Armed, not anxious. Three minutes inside a production Lemonade runs — with permission to take a genuinely better deal.",
+emo:"🎬 armed",tags:["LANE 2 · CONCIERGE","PLAYBOOK VISIBLE"],tap:"Tap ★ 📞 CALL GEICO NOW",
+h:stat+mhead+'<div class="chat" style="gap:7px"><div class="pcard full"><span class="ctitle">THE 2-MINUTE GOODBYE · YOUR CALL KIT</span><div class="besttime">⏱ Shortest waits: Tue–Thu, 8–10am</div><div class="script">\u201cHi! I\u2019d like to <b>non-renew</b> my auto policy — just let it end at the term.<br>Policy <b>GC-4471-8823</b> · term ends <b>March 14</b>.<br>I have replacement coverage starting March 14 — no gap.<br>Please <b>email me written confirmation</b>. Thanks!\u201d</div><div class="needrow"><span class="need">HAVE READY: POLICY #</span><span class="need">DATE OF BIRTH</span></div><div class="warn"><b>They\u2019ll probably offer a sudden discount.</b> Fair question: \u201cWhy wasn\u2019t I getting that price all along?\u201d — and if they genuinely beat $1,408, take it.</div></div></div><div class="sheet"><div class="opt go"><span class="star">★</span> 📞 Call Geico now</div><div class="opt">Do it later — I\u2019ll remind you</div></div>'+hb},
+{c:5,t:"One-tap debrief",why:"Her tap starts a watch; it doesn't end a task. Lemonade independently tracks the written confirmation and flags silence at day 5.",
+ux:"'Your job ends here.' The double-pay risk belongs to the machine, not her memory.",
+emo:"🙌 backed up",tags:["DONE = CONFIRMED","→ TRACKER"],tap:"Tap ★ DONE — THEY CONFIRMED",
+h:stat+mhead+'<div class="chat"><div class="row"><div class="avatar"></div><div class="b maya">Call done? How\u2019d it go?</div></div><div class="row"><div class="sp"></div><div class="b maya">Either way — I\u2019m watching for Geico\u2019s written confirmation. <b>If it doesn\u2019t arrive in 5 days, I\u2019ll flag it and we\u2019ll fix it together.</b> Your job ends here.</div></div></div><div class="sheet"><div class="opt go"><span class="star">★</span> Done — they confirmed</div><div class="opt">They offered me a deal…</div><div class="opt">Couldn\u2019t get through</div></div>'+hb},
+/* ---------- CH6 TRACKER ---------- */
+{c:6,t:"Live — off her plate",why:"The ownership transfer, in ink: 'Your job from here: nothing.' Two checks earned in ten minutes; the rest belong to the machine — visibly.",
+ux:"A package-tracker for leaving an insurer. She can watch it work instead of wondering.",
+emo:"😮‍💨 off her plate",tags:["SELF-UPDATING","P4 DISSOLVING"],tap:"Tap the 👀 watch step — 3 days pass",
+h:stat+'<div class="apphead"><span class="chev">‹</span><div class="apptitle">Switch Tracker</div><span class="dots">•••</span></div><div class="hbody" style="gap:9px"><div class="ppill"><span class="pt">GEICO → LEMONADE</span><span class="pc">2 OF 4 DONE</span></div><div class="tstep"><span class="td d">✓</span><div><div class="tn">Your policy — locked in</div><div class="tm">Starts <b>Mar 14, 12:01am</b> · $1,408/yr</div></div></div><div class="tstep"><span class="td d">✓</span><div><div class="tn">Goodbye delivered</div><div class="tm">You told Geico · Mar 1 · <b>2m 40s</b> 💪</div></div></div><div class="tstep go noDot"><span class="td w">👀</span><div><div class="tn">Geico\u2019s written confirmation</div><div class="tm">I\u2019m watching · <b>day 1 of 5</b> · quiet by Friday and I step in.</div></div></div><div class="tstep"><span class="td i">4</span><div><div class="tn">Cutover day</div><div class="tm">Mar 14 · zero-second handover + no-double-charge check</div></div></div><p class="yj">Your job from here: <b>nothing.</b> This page updates itself.</p></div>'+hb},
+{c:6,t:"The artifact arrives",why:"Done means confirmed: the checkmark turns green only when a written document exists — filed as a PDF she can open forever.",
+ux:"Confirmation is evidence, not a vibe. 'It's really happening' becomes a file in her Documents.",
+emo:"📬 it's real",tags:["EVIDENTIARY","PDF FILED"],tap:"Tap CUTOVER DAY — jump to Mar 14",
+h:stat+'<div class="apphead"><span class="chev">‹</span><div class="apptitle">Switch Tracker</div><span class="dots">•••</span></div><div class="hbody" style="gap:9px"><div class="toast">✓ Geico confirmed it in writing — just now</div><div class="ppill"><span class="pt">GEICO → LEMONADE</span><span class="pc">3 OF 4 DONE</span></div><div class="tstep"><span class="td d">✓</span><div><div class="tn">Your policy — locked in</div><div class="tm">Starts Mar 14 · $1,408/yr</div></div></div><div class="tstep"><span class="td d">✓</span><div><div class="tn">Goodbye delivered</div><div class="tm">Mar 1 · 2m 40s</div></div></div><div class="tstep"><span class="td d">✓</span><div><div class="tn">Geico\u2019s written confirmation</div><div class="tm">Non-renewal confirmed · Mar 4</div><span class="doc">📄 PDF SAVED TO YOUR DOCUMENTS</span></div></div><div class="tstep go noDot"><span class="td i">4</span><div><div class="tn">Cutover day</div><div class="tm">Mar 14 · zero-second handover + no-double-charge check</div></div></div><p class="yj">Next stop: <b>Mar 14.</b> See you there.</p></div>'+hb},
+{c:6,t:"The finale — zero seconds",why:"The seam graphic turns the strategy's proudest invisible achievement — a zero-second handover — into a picture she can screenshot. The no-stray-charge check closes the last risk with evidence.",
+ux:"'You never filled a form, never chased anyone, never had a single uninsured second.' Welcome, Lemonade driver.",
+emo:"🎉 seamless",tags:["IRON RULE · VERIFIED","NO DOUBLE-PAY"],tap:"Tap ★ SEE WHAT THIS SWITCH DID",
+h:stat+'<div class="apphead"><span class="chev">‹</span><div class="apptitle">Switch Tracker</div><span class="dots">•••</span></div><div class="hbody" style="gap:9px"><div class="ppill"><span class="pt">GEICO → LEMONADE</span><span class="pc">4 OF 4 · COMPLETE 🎉</span></div><div class="seam"><div class="sr"><div class="sb o"><div class="sn">GEICO</div><div class="st">ends Mar 14<br>12:01am</div></div><div class="sb n"><div class="sn">LEMONADE</div><div class="st">starts Mar 14<br>12:01am</div></div><span class="stag">GAP: 0 SECONDS</span></div><div class="sf">COVERED EVERY SINGLE SECOND ✓</div></div><div class="tstep"><span class="td d">✓</span><div><div class="tn">No stray Geico charge</div><div class="tm">Linked account checked — <b>no renewal draft, autopay closed.</b></div></div></div><div class="tstep"><span class="td d">✓</span><div><div class="tn">Insurability record — protected</div><div class="tm">Continuous coverage on file. No lapse mark, ever.</div></div></div><p class="yj"><b>No forms. No chasing. Not one uninsured second.</b> Welcome, Lemonade driver 🚗🍋</p></div><div class="sheet"><div class="opt go"><span class="star">★</span> See what this switch did</div></div>'+hb},
+/* ---------- CH7 RECEIPT ---------- */
+{c:7,t:"The trophy",why:"The ask fires at peak delight — never from a settings tab. The receipt's four stats are P1–P4's obituaries, written as bragging rights.",
+ux:"People don't share insurance; they share 'look what I got away with.' $613 · 0 forms · 9 minutes · 0-second gap.",
+emo:"🏆 proud",tags:["THE STORY OBJECT"],tap:"Tap ★ SHARE MY RECEIPT",
+h:stat+mhead+'<div class="chat"><div class="row"><div class="avatar"></div><div class="b maya">Want to see what this switch actually did?</div></div><div class="receipt"><div class="logo" style="font-size:16px">Lemonade</div><div class="rt">MY SWITCH RECEIPT</div><div class="rb">$613<small>/yr back</small></div><div class="rr"><div class="r1"><span class="k">Forms I filled</span><span class="v">0</span></div><div class="r1"><span class="k">My total time</span><span class="v">9 minutes</span></div><div class="r1"><span class="k">Coverage gap</span><span class="v">0 seconds</span></div><div class="r1"><span class="k">Trees planted</span><span class="v">8 🌳</span></div></div><div class="rf">Rate Watch did the rest 👀🍋</div></div></div><div class="sheet"><div class="opt go"><span class="star">★</span> Share my receipt</div><div class="opt">Maybe later</div></div>'+hb},
+{c:7,t:"The gift is a check",why:"The share object gives value before Lemonade earns any: the friend's gift is a free rate check — reward attaches to the completed check, never a purchase. Anti-rebating, worn as a value.",
+ux:"Sharing feels like generosity, not commission. The message writes itself from her real numbers.",
+emo:"😌 generous",tags:["PER-CHECK · COMPLIANT","IV-2"],tap:"Tap MESSAGES",
+h:'<div class="dim"><div class="ss"><div class="grab"></div><div class="msg">Lemonade watched my rate and switched me off Geico — <b>$613/yr back, 9 minutes, zero forms.</b> It\u2019ll check yours free, no strings: <span class="link">lmnd.me/maya-check</span> 🍋</div><div class="apps"><div class="ab go noDot"><span class="ac">💬</span>Messages</div><div class="ab"><span class="ac">📷</span>Stories</div><div class="ab"><span class="ac">🔗</span>Copy Link</div><div class="ab"><span class="ac">•••</span>More</div></div><p class="sfine">Your friend gets a <b>free rate check</b> — no purchase needed, ever. If they run it, you each get <b>$20</b> (or grow it into your Giveback 💛).</p></div></div>'},
+{c:7,t:"Screen 1, reborn",why:"The friend's landing IS Screen 1B with Maya's name on top: carrier quick-picks first. Every referred check banks a rung-2 signal; most become mandates.",
+ux:"Curiosity does the work: 'what's MY number?' No signup to see where she stands, no purchase ever required.",
+emo:"🤔 curious",tags:["FEEDS THE MACHINE","K-FACTOR TAIL"],tap:"Tap GEICO — the loop begins again",
+h:stat+'<div class="chat" style="padding-top:16px"><div class="fhero"><div class="logo" style="font-size:22px">Lemonade</div><div><span class="ffrom"><span class="fav"></span>Maya R. sent you a free rate check</span></div><div class="fh">Find out in 2 minutes if you\u2019re overpaying for car insurance.</div><p class="fsub">No signup to see where you stand. No purchase, ever, required. Maya got $613/yr back — your number might surprise you too.</p></div><div style="flex:1"></div></div><div class="sheet"><div class="opt go">Geico</div><div class="opt">Progressive</div><div class="opt">State Farm</div><div class="opt">Allstate</div><div class="opt">Someone else</div></div>'+hb},
+{c:7,t:"The reward, routed",why:"The Giveback route (doubled) borrows the brand's founding trust mechanic — and offers the sharer a second identity: generous, not just smart.",
+ux:"Keep $20, or grow $40 into Austin Pets Alive. Compliance stated as a value: 'that's the law, and we like it that way.'",
+emo:"💛 doubly good",tags:["GIVEBACK ROUTE","LOOP CLOSED"],tap:"Tap ★ GROW IT — then the finale",
+h:stat+mhead+'<div class="chat"><div class="row"><div class="avatar"></div><div class="b maya">Priya ran her check — she\u2019s overpaying by $380 😅 You\u2019ve each earned <b>$20</b>.</div></div><div class="pcard"><div class="ktitle">YOUR $20 · CHOOSE ITS JOB</div><div class="kv"><span class="k">Keep it</span><span class="v">$20 credit on your next bill</span></div><div class="kv"><span class="k">Grow it</span><span class="v" style="color:var(--pink)">$40 → Austin Pets Alive 💛</span></div></div><div class="row"><div class="avatar"></div><div class="b maya">Pick \u201cgrow it\u201d and we double it into your Giveback cause. (Simba would approve 🐱)</div></div><p class="fine">Rewards are for the completed check — never a purchase. That\u2019s the law, and honestly, we like it that way.</p></div><div class="sheet"><div class="opt go"><span class="star">★</span> Grow it — $40 to my cause</div><div class="opt">Keep my $20</div></div>'+hb},
+/* ---------- DETOURS ---------- */
+{c:8,t:"Detour · +48h email",why:"Email owns the document job — firing only if the push went unopened 48h, stating its own reason for existing, promising its own silence.",
+ux:"One button, no countdown, no 'last chance.' The paper trail for people who live in their inbox.",
+emo:"📬 unhurried",tags:["IV-1 REDUNDANCY"],tap:"Tap SEE MY SWITCH PLAN → next detour",
+h:stat+'<div class="mailhead"><div class="mf"><span class="ai">l</span><div><div class="ms">Maya at Lemonade</div><div class="mm">to me · Mar 3</div></div></div><div class="msub">Your Geico renewal is up 8.5%. Your Real Price isn\u2019t.</div></div><div class="mbody"><div class="logo" style="font-size:21px">Lemonade</div><div class="mh">The moment you asked me to watch for is here.</div><div class="mnums"><div class="mr"><span class="k">Geico renewal offer</span><span class="v">$2,004 / yr</span></div><div class="mr"><span class="k">Your Real Price</span><span class="v" style="color:var(--pink)">$1,390 / yr</span></div><div class="mr"><span class="k">You\u2019d save</span><span class="v" style="color:var(--teal)">$614 / yr</span></div><div class="mr"><span class="k">Zero-paperwork day</span><span class="v">March 14</span></div></div><div class="mbtn go noDot" style="position:relative">SEE MY SWITCH PLAN</div><p class="mfine">You asked me to watch your rate — that\u2019s the only reason this email exists. <u>Pause Rate Watch</u> anytime.</p></div>'+hb},
+{c:8,t:"Detour · silence after ignore",why:"The anti-spam rules shown, not claimed: one interception per window; ignore = silence until the next window — while the GIVING (recaps, trees) never stops.",
+ux:"A 'no' costs her nothing. The door stays visibly open; the relationship keeps compounding toward September.",
+emo:"🤫 respected",tags:["FREQUENCY GOVERNANCE"],tap:"Tap the card → next detour",
+h:stat+'<div class="apphead"><span class="chev">☰</span><div class="apptitle logo">Lemonade</div><span class="dots">•••</span></div><div class="hbody"><div class="hello">Hey, Maya 👋</div><div class="seclab">MY POLICIES</div><div class="pol"><div class="pic">🏠</div><div><div class="pname">Renters</div><div class="pmet">$14/mo · Active</div></div><span class="pchev">›</span></div><div class="seclab">WATCHING FOR YOU</div><div class="rwq go noDot"><div style="display:flex;align-items:center;gap:10px"><span class="pic" style="width:34px;height:34px;font-size:15px">👀</span><span class="rwn">RATE WATCH</span><span class="rwopen">WINDOW OPEN · TIL MAR 14</span></div><div style="font-size:12.2px;line-height:1.5;margin-top:8px">Your Real Price ($1,390) is ready whenever you are. <b>I won\u2019t ping you again</b> — tap if you change your mind.</div><div style="font-size:10.8px;color:var(--sub);margin-top:7px">After Mar 14: quiet watching (recaps keep coming 🌳). Next check-in: your Sep window.</div></div></div>'+hb},
+{c:8,t:"Detour · Geico counters",why:"Willing to lose, on the record — the one behavior no retention desk can mimic. It costs an occasional conversion and buys every future interception being believed.",
+ux:"Inoculated, she hears the sudden discount as confirmation: 'why only now?'",
+emo:"😏 inoculated",tags:["HONESTY = MOAT"],tap:"Tap ★ STICKING WITH MY REAL PRICE",
+h:stat+mhead+'<div class="chat"><div class="row"><div class="avatar"></div><div class="b maya">Ha — suddenly they found a discount 🙂 What did they offer?</div></div><div class="pcard"><div class="ktitle">FOR REFERENCE</div><div class="kv"><span class="k">Your Lemonade price</span><span class="v" style="color:var(--pink)">$1,408 / yr</span></div><div class="kv"><span class="k">Their renewal was</span><span class="v">$2,004 / yr</span></div></div><div class="row"><div class="avatar"></div><div class="b maya">Honestly: <b>if their new number genuinely beats $1,408 — take it.</b> I only want you here if it\u2019s better for you. (Maybe ask why that price only appeared when you tried to leave 🙂)</div></div></div><div class="sheet"><div class="opt">They offered $1,500–1,700</div><div class="opt">They beat $1,408</div><div class="opt go"><span class="star">★</span> Sticking with my Real Price</div></div>'+hb},
+{c:8,t:"Detour · the day-5 flag",why:"Silence is a defect, on a clock: day 5 escalates automatically. The ⭐ path reuses her tiny signature to submit the written non-renewal FOR her — used exactly once, exactly as scoped.",
+ux:"Defended: 'this is why I had you sign once — I can act without asking twice.'",
+emo:"🛡️ defended",tags:["WATCH · ESCALATING","SIGNATURE REUSED"],tap:"Tap ★ SEND IT IN WRITING — DONE FOR ME",
+h:stat+'<div class="apphead"><span class="chev">‹</span><div class="apptitle">Switch Tracker</div><span class="dots">•••</span></div><div class="hbody" style="gap:9px"><div class="ppill"><span class="pt">GEICO → LEMONADE</span><span class="pc pk">NEEDS A NUDGE</span></div><div class="tstep"><span class="td d">✓</span><div><div class="tn">Your policy — locked in</div><div class="tm">You\u2019re covered regardless</div></div></div><div class="tstep" style="border-color:#F2A9CE"><span class="td f">!</span><div><div class="tn">Geico\u2019s written confirmation</div><div class="tm"><b>Day 5 — still quiet. Not okay.</b> Silence is how double-billing happens, so I\u2019m stepping in:</div><div class="flagbox">This is why I had you sign once — <b>I can act without asking twice.</b></div></div></div><div class="tstep"><span class="td i">4</span><div><div class="tn">Cutover day</div><div class="tm">Mar 14 · unchanged either way</div></div></div></div><div class="sheet"><div class="opt go"><span class="star">★</span> Send my non-renewal in writing — done for me</div><div class="opt">I\u2019ll call again (Tue 8–10am)</div></div>'+hb},
+{c:8,t:"Detour · the mid-term lane",why:"The tracker generalizes: same spine, one extra row. In Lane 1/2 switches the pro-rata refund becomes the finale — the switch's last event is money arriving.",
+ux:"For the mid-term switcher: 'your refund — I'm watching. ~$212 owed back, I'll nudge you to check it landed.'",
+emo:"💵 it pays her",tags:["LANE 1/2 VARIANT","ONE SPINE"],tap:"Tap REFUND LANDED → the finale",
+h:stat+'<div class="apphead"><span class="chev">‹</span><div class="apptitle">Switch Tracker</div><span class="dots">•••</span></div><div class="hbody" style="gap:9px"><div class="ppill"><span class="pt">IF THIS WERE MID-TERM</span><span class="pc">SAME SPINE · +1 ROW</span></div><div class="tstep"><span class="td d">✓</span><div><div class="tn">Policy locked in</div><div class="tm">Bind-first, always</div></div></div><div class="tstep"><span class="td d">✓</span><div><div class="tn">Cancellation submitted</div><div class="tm">Signed request sent by Lemonade (Lane 1) — no call needed</div></div></div><div class="tstep"><span class="td d">✓</span><div><div class="tn">Carrier confirmed in writing</div><div class="tm">PDF saved · effective day D</div></div></div><div class="tstep" style="border-color:#BEE9E4"><span class="td w">💵</span><div><div class="tn">Your refund — I\u2019m watching</div><div class="tm"><b>~$212 pro-rata</b> owed back · 2–3 weeks · I\u2019ll nudge you to check it landed.</div></div></div><div class="tstep"><span class="td d">✓</span><div><div class="tn">Cutover clean</div><div class="tm">Zero gap · autopay closed · lienholder notified (if financed)</div></div></div></div><div class="sheet"><div class="opt go">Refund landed — mark it ✓</div></div>'+hb},
+/* ---------- FINALE ---------- */
+{c:9,t:"The loop, closed",why:"Priya's carrier tap is a new rung-2 signal; her September window is already on the machine's calendar. Referrals don't just add customers — they add signals that become customers.",
+ux:"One year, ~27 taps, zero forms: P1 dissolved by presence, P2 by the mandate and the season, P3 by the pre-loaded quote, P4 by the switch machine. The flywheel returns to Screen 1.",
+emo:"🍋 full circle",tags:["FLYWHEEL","SERIES COMPLETE"],tap:"Use ‹ to revisit any step, or the chapter pills above",
+h:stat+'<div class="cover"><div class="cl1">Lemonade</div><div class="cl2">The last note<br>of a year-long song.</div><div class="cl3"><b style="color:var(--ink)">P1</b> — dissolved by ambient presence<br><b style="color:var(--ink)">P2</b> — dissolved by the mandate + the season<br><b style="color:var(--ink)">P3</b> — dissolved by the pre-loaded quote<br><b style="color:var(--ink)">P4</b> — dissolved by the switch machine<br><br>$613/yr back · 0 forms · 9 minutes<br>0-second gap · 8 trees 🌳<br><br>And Priya\u2019s window is already on the calendar.</div></div><div class="sheet"><div class="opt" style="justify-content:center;font-weight:700">◂ REPLAY MAYA\u2019S YEAR</div></div>'+hb}
+];
+let i=0;
+const phone=document.getElementById('phone'),chps=document.getElementById('chps');
+const chapFirst={};S.forEach((s,idx)=>{if(!(s.c in chapFirst))chapFirst[s.c]=idx});
+[1,2,3,4,5,6,7,8].forEach(c=>{const b=document.createElement('span');b.className='chp';b.textContent=CH[c];b.onclick=()=>go(chapFirst[c]);b.dataset.c=c;chps.appendChild(b)});
+function go(n){i=Math.max(0,Math.min(S.length-1,n));const s=S[i];
+phone.innerHTML=s.h;
+document.getElementById('pchap').textContent=(s.c>=1&&s.c<=7?'SCREEN '+s.c+' OF 7 · ':'')+CH[s.c].toUpperCase();
+document.getElementById('ptitle').textContent=s.t;
+document.getElementById('pwhy').innerHTML=s.why;
+document.getElementById('pux').innerHTML=s.ux;
+document.getElementById('pchips').innerHTML='<span class="emo">'+s.emo+'</span>'+s.tags.map(t=>'<span class="trc">'+t+'</span>').join('');
+document.getElementById('ptap').innerHTML='<b>'+s.tap+'</b>';
+document.getElementById('ct').textContent=(i+1)+' / '+S.length;
+document.getElementById('fill').style.width=((i)/(S.length-1)*100)+'%';
+document.getElementById('prev').disabled=i===0;document.getElementById('next').disabled=i===S.length-1;
+document.querySelectorAll('.chp').forEach(b=>b.classList.toggle('on',+b.dataset.c===s.c));
+window.scrollTo({top:0,behavior:'smooth'})}
+phone.addEventListener('click',e=>{if(e.target.closest('.go'))go(i+1)});
+document.getElementById('prev').onclick=()=>go(i-1);
+document.getElementById('next').onclick=()=>go(i+1);
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(i+1);if(e.key==='ArrowLeft')go(i-1)});
+go(0);
+</script>
+</body>
+</html>
